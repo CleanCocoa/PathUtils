@@ -16,20 +16,8 @@ public func contentful(_ strings: [String]?) -> [ContentfulString] {
     return strings.compactMap(contentful)
 }
 
-public struct ContentfulString: Equatable, Hashable, ExpressibleByStringLiteral, CustomStringConvertible {
+public struct ContentfulString: Equatable, Hashable, CustomStringConvertible {
     public let value: String
-
-    public init(stringLiteral value: String) {
-        self.init(value)!
-    }
-
-    public init(unicodeScalarLiteral value: String) {
-        self.init(value)!
-    }
-
-    public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(value)!
-    }
 
     public init?(_ value: String) {
         guard !value.isEmpty else { return nil }

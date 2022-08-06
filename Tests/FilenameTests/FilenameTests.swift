@@ -3,10 +3,6 @@
 import XCTest
 @testable import Filename
 
-func url(_ path: String) -> URL {
-    return URL(fileURLWithPath: path)
-}
-
 class FilenameTests: XCTestCase {
     func testInitFromString() {
         XCTAssertNil(Filename(string: ""))
