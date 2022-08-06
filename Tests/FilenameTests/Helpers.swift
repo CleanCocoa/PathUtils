@@ -1,12 +1,13 @@
 //  Copyright © 2022 Christian Tietze. All rights reserved. Distributed under the MIT License.
 
+import Foundation
 @testable import Filename
 
 func url(_ path: String) -> URL {
     return URL(fileURLWithPath: path)
 }
 
-extension ContenfulString: ExpressibleByStringLiteral {
+extension ContentfulString: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(value)!
     }
