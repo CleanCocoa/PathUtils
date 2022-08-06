@@ -35,13 +35,11 @@ public struct Filename: Equatable, Hashable, CustomStringConvertible {
     }
 
     public func url(relativeTo url: URL, pathExtension: String) -> URL {
-
         return url.appendingPathComponent(self.string)
             .appendingPathExtension(pathExtension)
     }
 
     public func url(relativeTo folder: Folder, pathExtension: String) -> URL {
-
         return url(relativeTo: folder.url,
                    pathExtension: pathExtension)
     }
@@ -55,8 +53,21 @@ public func + (lhs: Filename, rhs: String) -> Filename {
     return Filename(lhs.value + rhs)
 }
 
-extension Filename: Comparable { }
+extension Filename: Comparable {
+    public static func < (lhs: Filename, rhs: Filename) -> Bool {
+        return lhs.value < rhs.value
+    }
+}
 
-public func < (lhs: Filename, rhs: Filename) -> Bool {
-    return lhs.value < rhs.value
+extension Filename: Decodable {
+    public enum DecodingError: Error {
+        case emptyFilename
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        guard let contentfulString = ContentfulString(string) else { throw DecodingError.emptyFilename }
+        self.init(contentfulString)
+    }
 }
