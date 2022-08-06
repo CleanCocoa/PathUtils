@@ -3,7 +3,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "Filename",
+  name: "Filename",
+    platforms: [
+        .macOS(.v10_11)
+    ],
     products: [
         .library(
             name: "Filename",
