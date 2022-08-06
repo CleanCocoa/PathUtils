@@ -12,11 +12,11 @@ The base types are:
 - `ContentfulString`, enabling non-empty filenames under the hood.
 
 ```swift
-guard let filename = Filename("foo.txt"),
+guard let basename = Basename("foo.txt"),
       let folder = Folder(url: URL(fileURLWithPath: "/path/to/success/"))
 else { exit }
 
-let path: String = folder + filename
+let path: String = folder + basename
 ```
 
 ## Installation

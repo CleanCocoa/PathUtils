@@ -6,9 +6,18 @@ import XCTest
 final class PathTests: XCTestCase {
     func testFolderAndFilenameConcatenation() throws {
         let folder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/path/to/success/")))
-        let filename = Filename(try XCTUnwrap(contentful("the file.txt")))
+        let filename = Filename(try XCTUnwrap(contentful("the file")))
 
         XCTAssertEqual(folder + filename,
-                       "file:///path/to/success/the%20file.txt")
+                       "/path/to/success/the file")
+    }
+
+    func testFolderAndBasenameConcatenation() throws {
+        let folder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/path/to/success/")))
+        let filename = Filename(try XCTUnwrap(contentful("the file")))
+        let basename = Basename(filename: filename, pathExtension: "txt")
+
+        XCTAssertEqual(folder + basename,
+                       "/path/to/success/the file.txt")
     }
 }

@@ -1,8 +1,9 @@
 //  Copyright © 2022 Christian Tietze. All rights reserved. Distributed under the MIT License.
 
 public func + (folder: Folder, filename: Filename) -> String {
-    return folder
-      .url
-      .appendingPathComponent(filename.string)
-      .absoluteString
+    return filename.url(relativeTo: folder, pathExtension: "").absoluteURL.path
+}
+
+public func + (folder: Folder, basename: Basename) -> String {
+    return basename.url(relativeTo: folder).absoluteURL.path
 }
