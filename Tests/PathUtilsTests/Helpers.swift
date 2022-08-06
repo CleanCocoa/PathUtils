@@ -1,7 +1,7 @@
 //  Copyright © 2022 Christian Tietze. All rights reserved. Distributed under the MIT License.
 
 import Foundation
-@testable import Filename
+@testable import PathUtils
 
 func url(_ path: String) -> URL {
     return URL(fileURLWithPath: path)

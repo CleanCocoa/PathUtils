@@ -1,4 +1,4 @@
-# Filename
+# PathUtils
 
 μ-library to deal with non-empty strings, filenames, and directories.
 
@@ -24,7 +24,7 @@ let path: String = folder + filename
 ### Using Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/CleanCocoa/Filename", from: "1.0.0")
+.package(url: "https://github.com/CleanCocoa/PathUtils", from: "1.0.0")
 ```
 
 ## License

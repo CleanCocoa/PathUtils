@@ -1,7 +1,7 @@
 //  Copyright © 2022 Christian Tietze. All rights reserved. Distributed under the MIT License.
 
 import XCTest
-@testable import Filename
+@testable import PathUtils
 
 class BasenameTests: XCTestCase {
     private func url(_ path: String) -> URL {

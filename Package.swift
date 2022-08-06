@@ -3,22 +3,22 @@
 import PackageDescription
 
 let package = Package(
-  name: "Filename",
+  name: "PathUtils",
     platforms: [
         .macOS(.v10_11)
     ],
     products: [
         .library(
-            name: "Filename",
-            targets: ["Filename"]),
+            name: "PathUtils",
+            targets: ["PathUtils"]),
     ],
     dependencies: [ ],
     targets: [
         .target(
-            name: "Filename",
+            name: "PathUtils",
             dependencies: []),
         .testTarget(
-            name: "FilenameTests",
-            dependencies: ["Filename"]),
+            name: "PathUtilsTests",
+            dependencies: ["PathUtils"]),
     ]
 )

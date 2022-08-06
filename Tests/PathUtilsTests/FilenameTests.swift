@@ -1,7 +1,7 @@
 //  Copyright © 2017 Christian Tietze. All rights reserved. Distributed under the MIT License.
 
 import XCTest
-@testable import Filename
+@testable import PathUtils
 
 class FilenameTests: XCTestCase {
     func testInitFromString() {
