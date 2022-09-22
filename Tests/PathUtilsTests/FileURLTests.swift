@@ -5,14 +5,10 @@ import XCTest
 
 class FileURLTests: XCTestCase {
     let webURL = URL(string: "http://web.addres.se")!
-    let fileURL = URL(string: "file:///tmp/foo.bar")!
     let folderURL = URL(fileURLWithPath: "/xyz", isDirectory: true)
-    let relativeFileURL = URL(
-        fileURLWithPath: "subdir/file.txt",
-        relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
     let rootURL = URL(fileURLWithPath: "/")
 
-    func testInit_FromFolderAndBasename() throws {
+    func test_FromFolderAndBasename() throws {
         let folder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/path/to", isDirectory: true)))
         let basename = Basename(filename: Filename("file"), pathExtension: "txt")
         let fileURL = FileURL(folder: folder, basename: basename)
@@ -23,48 +19,70 @@ class FileURLTests: XCTestCase {
         XCTAssertEqual(fileURL.url, URL(fileURLWithPath: "/path/to/file.txt"))
     }
 
-    func testInit_FromURL() {
+    func test_FromWebURL_FailsInitialization() {
         XCTAssertNil(FileURL(from: webURL))
+    }
+
+    func test_FromFolderURL_FailsInitialization() {
         XCTAssertNil(FileURL(from: folderURL))
+    }
+
+    func test_FromRootPathURL_FailsInitialization() {
         XCTAssertNil(FileURL(from: rootURL))
-        XCTAssertNotNil(FileURL(from: fileURL))
-        XCTAssertNotNil(FileURL(from: relativeFileURL))
     }
 
-    func testFilename() {
-        XCTAssertEqual(FileURL(from: fileURL)?.filename,
+    func test_FromAbsoluteFileURL() throws {
+        let fileURLFromFile = try XCTUnwrap(FileURL(from: URL(string: "file:///tmp/foo.bar")!))
+
+        XCTAssertEqual(fileURLFromFile.filename,
                        Filename("foo"))
-        XCTAssertEqual(FileURL(from: relativeFileURL)?.filename,
-                       Filename("file"))
-    }
-
-    func testBasename() {
-        XCTAssertEqual(FileURL(from: fileURL)?.basename,
+        XCTAssertEqual(fileURLFromFile.basename,
                        Basename(filename: Filename("foo"),
                                 pathExtension: "bar"))
-        XCTAssertEqual(FileURL(from: relativeFileURL)?.basename,
+        XCTAssertEqual(fileURLFromFile.folder,
+                       try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/tmp", isDirectory: true))))
+    }
+
+    func test_FromAbsoluteFileURLAtRootLevel() throws {
+        let fileURL = try XCTUnwrap(FileURL(from: URL(fileURLWithPath: "/root.xyz")))
+
+        XCTAssertEqual(fileURL.filename,
+                       Filename("root"))
+        XCTAssertEqual(fileURL.basename,
+                       Basename(filename: Filename("root"),
+                                pathExtension: "xyz"))
+        XCTAssertEqual(fileURL.folder,
+                       try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/", isDirectory: true))))
+    }
+
+    func test_FromRelativeFileURL_WithSubdirectory() throws{
+        let relativeFileURL = URL(
+            fileURLWithPath: "subdir/file.txt",
+            relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
+        let fileURLFromRelativeFile = try XCTUnwrap(FileURL(from: relativeFileURL))
+
+        XCTAssertEqual(fileURLFromRelativeFile.basename,
                        Basename(filename: Filename("file"),
                                pathExtension: "txt"))
+        XCTAssertEqual(fileURLFromRelativeFile.filename,
+                       Filename("file"))
+        XCTAssertEqual(fileURLFromRelativeFile.folder,
+                       Folder(url: URL(fileURLWithPath: "/tmp/relative/subdir", isDirectory: true)))
+
     }
 
-    func testFolder_FilesInDirectories() {
-        XCTAssertEqual(FileURL(from: fileURL)?.folder?.path,
-                       "/tmp")
-        XCTAssertEqual(FileURL(from: relativeFileURL)?.folder?.path,
-                       "/tmp/relative/subdir")
-
+    func test_FromRelativeFileURL_WithoutSubdirectory() throws {
         let relativeFileURLWithoutSubdir = URL(
-            fileURLWithPath: "file.txt",
+            fileURLWithPath: "main.file",
             relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
-        XCTAssertEqual(FileURL(from: relativeFileURLWithoutSubdir)?.folder?.path,
-                       "/tmp/relative")
-    }
+        let fileURLFromRelativeFileWithoutSubdir = try XCTUnwrap(FileURL(from: relativeFileURLWithoutSubdir))
 
-    func testFolder_RootLevelFiles() throws {
-        let rootFolder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/", isDirectory: true)))
-
-        let rootFile = URL(fileURLWithPath: "/root.xyz")
-        XCTAssertEqual(FileURL(from: rootFile)?.folder,
-                       rootFolder)
+        XCTAssertEqual(fileURLFromRelativeFileWithoutSubdir.basename,
+                       Basename(filename: Filename("main"),
+                               pathExtension: "file"))
+        XCTAssertEqual(fileURLFromRelativeFileWithoutSubdir.filename,
+                       Filename("main"))
+        XCTAssertEqual(fileURLFromRelativeFileWithoutSubdir.folder,
+                       Folder(url: URL(fileURLWithPath: "/tmp/relative", isDirectory: true)))
     }
 }
