@@ -4,14 +4,14 @@ import XCTest
 @testable import PathUtils
 
 class FolderTests: XCTestCase {
-    func testInit_FolderURL_Succeeds() {
-        let folderUrl = URL(fileURLWithPath: "/xyz", isDirectory: true)
-        XCTAssertNotNil(Folder(url: folderUrl))
-    }
+    let webURL = URL(string: "https://web.addres.se")!
+    let folderURL = URL(fileURLWithPath: "/xyz", isDirectory: true)
+    let fileURL = URL(fileURLWithPath: "/xyz", isDirectory: false)
 
-    func testInit_FileURL_Fails() {
-        let fileUrl = URL(fileURLWithPath: "/xyz", isDirectory: false)
-        XCTAssertNil(Folder(url: fileUrl))
+    func testInitializer() {
+        XCTAssertNil(Folder(url: webURL))
+        XCTAssertNil(Folder(url: fileURL))
+        XCTAssertNotNil(Folder(url: folderURL))
     }
 
     func testEquatability() {
