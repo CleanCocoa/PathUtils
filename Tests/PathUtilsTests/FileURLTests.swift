@@ -12,7 +12,18 @@ class FileURLTests: XCTestCase {
         relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
     let rootURL = URL(fileURLWithPath: "/")
 
-    func testInitializer() {
+    func testInit_FromFolderAndBasename() throws {
+        let folder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/path/to", isDirectory: true)))
+        let basename = Basename(filename: Filename("file"), pathExtension: "txt")
+        let fileURL = FileURL(folder: folder, basename: basename)
+
+        XCTAssertEqual(fileURL.folder, folder)
+        XCTAssertEqual(fileURL.basename, basename)
+        XCTAssertEqual(fileURL.filename, basename.filename)
+        XCTAssertEqual(fileURL.url, URL(fileURLWithPath: "/path/to/file.txt"))
+    }
+
+    func testInit_FromURL() {
         XCTAssertNil(FileURL(from: webURL))
         XCTAssertNil(FileURL(from: folderURL))
         XCTAssertNil(FileURL(from: rootURL))

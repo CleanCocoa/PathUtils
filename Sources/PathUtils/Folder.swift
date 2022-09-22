@@ -3,6 +3,7 @@
 import Foundation
 
 extension URL {
+    @inlinable
     public var folder: Folder? { Folder(url: self) }
 }
 
@@ -19,6 +20,14 @@ public struct Folder: Equatable, CustomStringConvertible {
 
     public var description: String {
         return "Folder(path=\"\(url.path)\")"
+    }
+
+    public func fileURL(filename: Filename, pathExtension: String) -> FileURL {
+        return fileURL(basename: Basename(filename: filename, pathExtension: pathExtension))
+    }
+
+    public func fileURL(basename: Basename) -> FileURL {
+        return FileURL(folder: self, basename: basename)
     }
 
     public static func == (lhs: Folder, rhs: Folder) -> Bool {

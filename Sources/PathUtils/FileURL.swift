@@ -9,7 +9,6 @@ extension URL {
 }
 
 /// A URL that points to a resource on the local file system, i.e. via the `file:` scheme. 
-/// - Invariant: Cannot be constructed for non-file-URLs. Adheres to the same rules as  ``URL.isFileURL``.
 public struct FileURL: Equatable {
     public let url: URL
 
@@ -23,6 +22,14 @@ public struct FileURL: Equatable {
     public var folder: Folder? {
         Folder(url: url.deletingLastPathComponent()) }
 
+    public init(folder: Folder, basename: Basename) {
+        let url = basename.url(relativeTo: folder)
+        assert(url.isFileURL, "Folder guarantees isFileURL already, adding a Basename should not alter that.")
+        assert(!url.hasDirectoryPath, "Basename inside Folder should not produce a directory path.")
+        self.url = url
+    }
+
+    /// - Invariant: Cannot be constructed for non-file-URLs. Adheres to the rules of  `URL.isFileURL` combined with `URL.hasDirectoryPath`.
     public init?(from url: URL) {
         guard url.isFileURL,
               !url.hasDirectoryPath

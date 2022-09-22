@@ -40,14 +40,18 @@ public struct Filename: Equatable, Hashable, CustomStringConvertible {
         self.init(string: filename)
     }
 
-    public func url(relativeTo url: URL, pathExtension: String) -> URL {
+    public func url(relativeTo url: URL, pathExtension: String = "") -> URL {
         return url.appendingPathComponent(self.string)
             .appendingPathExtension(pathExtension)
     }
 
-    public func url(relativeTo folder: Folder, pathExtension: String) -> URL {
+    public func url(relativeTo folder: Folder, pathExtension: String = "") -> URL {
         return url(relativeTo: folder.url,
                    pathExtension: pathExtension)
+    }
+
+    public func fileURL(relativeTo folder: Folder, pathExtension: String = "") -> FileURL {
+        return folder.fileURL(filename: self, pathExtension: pathExtension)
     }
 
     public var description: String {

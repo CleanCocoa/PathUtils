@@ -39,6 +39,10 @@ public struct Basename: Equatable, Hashable {
             relativeTo: folder,
             pathExtension: pathExtension)
     }
+
+    public func fileURL(relativeTo folder: Folder) -> FileURL {
+        return folder.fileURL(basename: self)
+    }
 }
 
 extension Basename: CustomStringConvertible {
