@@ -5,17 +5,18 @@ import XCTest
 
 class URL_FilenameTests: XCTestCase {
     func testFilenameHelper() {
-        XCTAssertEqual(url("/").filename, "/")
-        XCTAssertEqual(URL(fileURLWithPath: "", relativeTo: URL(fileURLWithPath: "/")).filename, "/")
-        XCTAssertEqual(url("//").filename, "/")
-        XCTAssertEqual(url("test").filename, "test")
-        XCTAssertEqual(url("/test/").filename, "test")
-        XCTAssertEqual(url("file:///what/where/").filename, "where")
-        XCTAssertEqual(url("test/foo").filename, "foo")
-        XCTAssertEqual(url(".bar").filename, ".bar")
-        XCTAssertEqual(url("foo/.baz").filename, ".baz")
-        XCTAssertEqual(url("shmoo/.test/bazz").filename, "bazz")
+        XCTAssertEqual(url("/").filenamePathComponent, "/")
+        XCTAssertEqual(URL(fileURLWithPath: "", relativeTo: URL(fileURLWithPath: "/")).filenamePathComponent, "/")
+        XCTAssertEqual(url("//").filenamePathComponent, "/")
+        XCTAssertEqual(url("test").filenamePathComponent, "test")
+        XCTAssertEqual(url("/test/").filenamePathComponent, "test")
+        XCTAssertEqual(url("file:///what/where/").filenamePathComponent, "where")
+        XCTAssertEqual(url("test/foo").filenamePathComponent, "foo")
+        XCTAssertEqual(url(".bar").filenamePathComponent, ".bar")
+        XCTAssertEqual(url("foo/.baz").filenamePathComponent, ".baz")
+        XCTAssertEqual(url("shmoo/.test/bazz").filenamePathComponent, "bazz")
 
-        XCTAssertEqual(url("fst.txt").filename, "fst")
+        XCTAssertEqual(url("fst.txt").filenamePathComponent, "fst")
+        XCTAssertEqual(url("arch.tar.gz").filenamePathComponent, "arch.tar")
     }
 }

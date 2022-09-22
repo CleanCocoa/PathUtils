@@ -3,8 +3,12 @@
 import Foundation
 
 extension URL {
-    /// Filename without path extension of the last path component.
-    public var filename: String {
+    /// ``Filename``, without path extension of the last path component.
+    @inlinable
+    public var filename: Filename? { Filename(url: self) }
+
+    /// Canonical version of the last path component without path extension.
+    public var filenamePathComponent: String {
         return (self.lastPathComponent as NSString)
             .deletingPathExtension
             // Favor simple characters over combined grapheme clusters
@@ -29,9 +33,11 @@ public struct Filename: Equatable, Hashable, CustomStringConvertible {
     }
 
     public init?(url: URL) {
-        // Empty root path
-        guard url.filename != "/" else { return nil }
-        self.init(string: url.filename)
+        let filename = url.filenamePathComponent
+
+        // Empty root path is just the slash.
+        guard filename != "/" else { return nil }
+        self.init(string: filename)
     }
 
     public func url(relativeTo url: URL, pathExtension: String) -> URL {

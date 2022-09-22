@@ -19,10 +19,6 @@ class FilenameTests: XCTestCase {
         XCTAssertNil(Filename(url: URL(fileURLWithPath: "/")))
     }
 
-    func testFilename_EdgeCases() {
-        XCTAssertEqual(url("arch.tar.gz").filename, "arch.tar")
-    }
-
     func testURL() {
         let filename = Filename("the-file")
         let baseURL = URL(fileURLWithPath: "/base/path/")
