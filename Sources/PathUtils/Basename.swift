@@ -2,6 +2,12 @@
 
 import Foundation
 
+extension URL {
+    /// ``Basename`` with file extension of the last path component.
+    @inlinable
+    public var basename: Basename? { Basename(url: self) }
+}
+
 /// Representation of a filename with its path extension. So "/path/to/foo.txt" becomes "foo.txt".
 ///
 /// See ``Filename`` for filename without path extension.
