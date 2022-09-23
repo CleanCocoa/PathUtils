@@ -4,10 +4,6 @@ import XCTest
 @testable import PathUtils
 
 class FileURLTests: XCTestCase {
-    let webURL = URL(string: "http://web.addres.se")!
-    let folderURL = URL(fileURLWithPath: "/xyz", isDirectory: true)
-    let rootURL = URL(fileURLWithPath: "/")
-
     func test_FromFolderAndBasename() throws {
         let folder = try XCTUnwrap(Folder(url: URL(fileURLWithPath: "/path/to", isDirectory: true)))
         let basename = Basename(filename: Filename("file"), pathExtension: "txt")
@@ -19,15 +15,38 @@ class FileURLTests: XCTestCase {
         XCTAssertEqual(fileURL.url, URL(fileURLWithPath: "/path/to/file.txt"))
     }
 
-    func test_FromWebURL_FailsInitialization() {
-        XCTAssertNil(FileURL(from: webURL))
+    func test_FromHTTP_URL_FailsInitialization() {
+        let httpURL = URL(string: "http://web.addres.se")!
+        XCTAssertNil(FileURL(from: httpURL))
     }
 
-    func test_FromFolderURL_FailsInitialization() {
-        XCTAssertNil(FileURL(from: folderURL))
+    func test_FromHTTPS_URL_FailsInitialization() {
+        let httpsURL = URL(string: "https://web.addres.se")!
+        XCTAssertNil(FileURL(from: httpsURL))
+    }
+
+    func test_FromFTP_URL_FailsInitialization() {
+        let ftpURL = URL(string: "ftp://web.addres.se")!
+        XCTAssertNil(FileURL(from: ftpURL))
+    }
+
+    func test_FromSSH_URL_FailsInitialization() {
+        let sshURL = URL(string: "ssh://foo:bar@web.addres.se")!
+        XCTAssertNil(FileURL(from: sshURL))
+    }
+
+    func test_FromCustomURL_FailsInitialization() {
+        let customURL = URL(string: "myapp://host/path")!
+        XCTAssertNil(FileURL(from: customURL))
+    }
+
+    func test_FromDirectoryURL_FailsInitialization() {
+        let directoryURL = URL(fileURLWithPath: "/xyz", isDirectory: true)
+        XCTAssertNil(FileURL(from: directoryURL))
     }
 
     func test_FromRootPathURL_FailsInitialization() {
+        let rootURL = URL(fileURLWithPath: "/")
         XCTAssertNil(FileURL(from: rootURL))
     }
 
