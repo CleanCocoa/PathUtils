@@ -18,9 +18,11 @@ class BasenameTests: XCTestCase {
         XCTAssertNil(Basename(url: URL(fileURLWithPath: "/")))
     }
 
-    func testDescription() {
-        XCTAssertEqual(Basename(value: "the_file", pathExtension: "").description, "Basename(the_file)")
-        XCTAssertEqual(Basename(value: "the_file", pathExtension: "txt").description, "Basename(the_file.txt)")
+    func testString() {
+        XCTAssertEqual(Basename(value: "the_file", pathExtension: "").string, "the_file")
+        XCTAssertEqual(Basename(value: "the_file", pathExtension: "txt").string, "the_file.txt")
+        XCTAssertEqual(Basename(value: "the_file", pathExtension: " ").string, "the_file. ",
+                       "Nonsensical, but there's no rule against whitespace-only path extensions")
     }
 
     func testURL() {

@@ -16,6 +16,13 @@ public struct Basename: Equatable, Hashable {
     /// When the file has no path extension, an empty string.
     public let pathExtension: String
 
+    public var string: String {
+        let suffix = pathExtension.isEmpty
+            ? ""
+            : ".\(pathExtension)"
+        return filename.string + suffix
+    }
+
     public init(filename: Filename,
                 pathExtension: String) {
         self.filename = filename
@@ -46,10 +53,5 @@ public struct Basename: Equatable, Hashable {
 }
 
 extension Basename: CustomStringConvertible {
-    public var description: String {
-        let suffix = pathExtension.isEmpty
-            ? ""
-            : ".\(pathExtension)"
-        return "Basename(\(filename.string)\(suffix))"
-    }
+    public var description: String { "Basename(\(string)" }
 }
