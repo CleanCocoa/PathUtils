@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(
             name: "PathUtils",
+            type: .dynamic,
             targets: ["PathUtils"]),
     ],
     dependencies: [ ],
