@@ -1,11 +1,11 @@
-// swift-tools-version:5.2
+// swift-tools-version: 5.5
 
 import PackageDescription
 
 let package = Package(
   name: "PathUtils",
     platforms: [
-        .macOS(.v10_11)
+        .macOS(.v10_13)
     ],
     products: [
         .library(
