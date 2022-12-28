@@ -5,11 +5,14 @@ import PackageDescription
 let package = Package(
   name: "PathUtils",
     platforms: [
-        .macOS(.v10_13)
+        .macOS(.v10_13),
     ],
     products: [
         .library(
             name: "PathUtils",
+            targets: ["PathUtils"]),
+        .library(
+            name: "PathUtils-Dynamic",
             type: .dynamic,
             targets: ["PathUtils"]),
     ],
