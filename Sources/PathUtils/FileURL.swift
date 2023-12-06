@@ -38,3 +38,21 @@ public struct FileURL: Equatable {
         self.init(folder: folder, basename: basename)
     }
 }
+
+extension FileURL: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let url = try container.decode(URL.self)
+        guard let fileURL = FileURL(from: url) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Expected a valid file URL string, got '\(url)'")
+        }
+        self = fileURL
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(url)
+    }
+}

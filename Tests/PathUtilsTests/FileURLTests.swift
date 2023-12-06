@@ -104,4 +104,19 @@ class FileURLTests: XCTestCase {
         XCTAssertEqual(fileURLFromRelativeFileWithoutSubdir.folder,
                        Folder(url: URL(fileURLWithPath: "/tmp/relative", isDirectory: true)))
     }
+
+    func testCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        let fileURL = try FileURL(
+            folder: XCTUnwrap(Folder(url: URL(filePath: "/tmp/directory/"))),
+            basename: XCTUnwrap(Basename(value: "file", pathExtension: "foo"))
+        )
+
+        let jsonData = try encoder.encode(fileURL)
+        XCTAssertEqual(String(data: jsonData, encoding: .utf8), #""file:\/\/\/tmp\/directory\/file.foo""#)
+
+        let decoded = try decoder.decode(FileURL.self, from: jsonData)
+        XCTAssertEqual(decoded, fileURL)
+    }
 }
