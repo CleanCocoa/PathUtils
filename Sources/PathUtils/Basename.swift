@@ -53,5 +53,36 @@ public struct Basename: Equatable, Hashable {
 }
 
 extension Basename: CustomStringConvertible {
-    public var description: String { "Basename(\(string)" }
+    public var description: String { "Basename(\(filename) . \(pathExtension))" }
+}
+
+extension Basename {
+    private static func splitBasename(
+        _ string: String
+    ) -> (filename: String, pathExtension: String?) {
+        // "." and ".." but also "....."
+        if string.allSatisfy({ $0 == "." }) {
+            return (string, nil)
+        }
+
+        let lastIndex = string.lastIndex(of: ".") ?? string.endIndex
+        guard lastIndex != string.startIndex else {
+            return (string, nil)
+        }
+        let filename = String(string[..<lastIndex])
+        let hasExtension = lastIndex != string.endIndex
+
+        return hasExtension ? (filename, String(string[string.index(after: lastIndex)...])) : (string, nil)
+    }
+
+    public init?(string: String) {
+        let (filenameString, pathExtension) = Self.splitBasename(string)
+
+        guard let filename = Filename(string: filenameString) else { return nil }
+
+        self.init(
+            filename: filename,
+            pathExtension: pathExtension ?? ""
+        )
+    }
 }

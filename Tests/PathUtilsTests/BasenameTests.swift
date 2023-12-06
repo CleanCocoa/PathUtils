@@ -18,6 +18,25 @@ class BasenameTests: XCTestCase {
         XCTAssertNil(Basename(url: URL(fileURLWithPath: "/")))
     }
 
+    func testInitFromString() {
+        XCTAssertNil(Basename(string: ""))
+
+        XCTAssertEqual(Basename(string: "."), Basename(value: ".", pathExtension: ""))
+        XCTAssertEqual(Basename(string: ".."), Basename(value: "..", pathExtension: ""))
+        XCTAssertEqual(Basename(string: "....."), Basename(value: ".....", pathExtension: ""))
+
+        XCTAssertEqual(Basename(string: " "), Basename(value: " ", pathExtension: ""))
+        XCTAssertEqual(Basename(string: "test"), Basename(value: "test", pathExtension: ""))
+        
+        XCTAssertEqual(Basename(string: ".hidden"), Basename(value: ".hidden", pathExtension: ""))
+        XCTAssertEqual(Basename(string: ".hidden.file"), Basename(value: ".hidden", pathExtension: "file"))
+
+        XCTAssertEqual(Basename(string: "abnormal....file"), Basename(value: "abnormal...", pathExtension: "file"))
+
+        XCTAssertEqual(Basename(string: "normal.file"), Basename(value: "normal", pathExtension: "file"))
+        XCTAssertEqual(Basename(string: "a.b.c"), Basename(value: "a.b", pathExtension: "c"))
+    }
+
     func testString() {
         XCTAssertEqual(Basename(value: "the_file", pathExtension: "").string, "the_file")
         XCTAssertEqual(Basename(value: "the_file", pathExtension: "txt").string, "the_file.txt")
