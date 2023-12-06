@@ -74,10 +74,19 @@ extension Filename: Decodable {
         case emptyFilename
     }
 
+    @inlinable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
         guard let contentfulString = ContentfulString(string) else { throw DecodingError.emptyFilename }
         self.init(contentfulString)
+    }
+}
+
+extension Filename: Encodable {
+    @inlinable
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(string)
     }
 }

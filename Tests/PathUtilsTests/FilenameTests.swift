@@ -27,4 +27,16 @@ class FilenameTests: XCTestCase {
         XCTAssertEqual(filename.url(relativeTo: baseURL, pathExtension: "ext").absoluteString,
                        "file:///base/path/the-file.ext")
     }
+
+    func testCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        let filename = try XCTUnwrap(Filename(string: "Test Filename"))
+
+        let jsonData = try encoder.encode(filename)
+        XCTAssertEqual(String(data: jsonData, encoding: .utf8), #""Test Filename""#)
+
+        let decoded = try decoder.decode(Filename.self, from: jsonData)
+        XCTAssertEqual(decoded, filename)
+    }
 }
