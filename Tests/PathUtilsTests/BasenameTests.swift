@@ -51,4 +51,19 @@ class BasenameTests: XCTestCase {
         XCTAssertEqual(Basename(value: "file", pathExtension: "").url(relativeTo: baseURL).absoluteString,
                        "file:///base/path/file")
     }
+
+    func testCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        let basename = Basename(
+            filename: try XCTUnwrap(Filename(string: ".top.secret")),
+            pathExtension: "gpg"
+        )
+
+        let jsonData = try encoder.encode(basename)
+        XCTAssertEqual(String(data: jsonData, encoding: .utf8), #"".top.secret.gpg""#)
+
+        let decoded = try decoder.decode(Basename.self, from: jsonData)
+        XCTAssertEqual(decoded, basename)
+    }
 }

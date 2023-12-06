@@ -86,3 +86,21 @@ extension Basename {
         )
     }
 }
+
+extension Basename: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        guard let basename = Basename(string: string) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Expected a valid basename string, got '\(string)'")
+        }
+        self = basename
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(string)
+    }
+}
