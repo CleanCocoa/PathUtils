@@ -52,7 +52,7 @@ class BasenameTests: XCTestCase {
                        "file:///base/path/file")
     }
 
-    func testCodable_Roundtrip_Success() throws {
+    func testCodable_Roundtrip() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         let basename = Basename(
@@ -67,23 +67,23 @@ class BasenameTests: XCTestCase {
         XCTAssertEqual(decoded, basename)
     }
 
-    func testDecodable_InvalidValues() throws {
+    func testDecodable() throws {
         let decoder = JSONDecoder()
 
-        func decoded(_ jsonString: String) throws -> Basename? {
+        func decoded(_ jsonString: String) throws -> Basename {
             try decoder.decode(Basename.self, from: jsonString.data(using: .utf8)!)
         }
 
         // Valid JSON requires enquoting
         XCTAssertThrowsError(try decoded(#"file"#))
         XCTAssertThrowsError(try decoded(#"text.txt"#))
+
         try XCTAssertEqual(decoded(#""text.txt""#), Basename(value: "text", pathExtension: "txt"))
         try XCTAssertEqual(decoded(#""file""#), Basename(value: "file", pathExtension: ""))
         try XCTAssertEqual(decoded(#"".top.secret.gpg""#), Basename(value: ".top.secret", pathExtension: "gpg"))
-        // Paths are not supported illegal
-        XCTAssertThrowsError(try decoded(#""/doc.txt""#))
-        XCTAssertThrowsError(try decoded(#""relative/doc.txt""#))
-        XCTAssertThrowsError(try decoded(#""/absolute/doc.txt""#))
-        XCTAssertThrowsError(try decoded(#""file:///full/path/doc.txt""#))
+        try XCTAssertEqual(decoded(#""/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
+        try XCTAssertEqual(decoded(#""relative/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
+        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
+        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
     }
 }

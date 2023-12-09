@@ -76,12 +76,10 @@ extension Basename {
     }
 
     public init?(string: String) {
-        let invalidCharacters = CharacterSet(charactersIn: #"/\"#)
-        if string.rangeOfCharacter(from: invalidCharacters) != nil {
-            return nil
-        }
+        let pathComponents = string.split(separator: "/", omittingEmptySubsequences: true)
+        guard let lastComponent = pathComponents.last.map(String.init(_:)) else { return nil }
 
-        let (filenameString, pathExtension) = Self.splitBasename(string)
+        let (filenameString, pathExtension) = Self.splitBasename(lastComponent)
 
         guard let filename = Filename(string: filenameString) else { return nil }
 
