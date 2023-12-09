@@ -71,14 +71,21 @@ extension Filename: Comparable {
 
 extension Filename: Decodable {
     public enum DecodingError: Error {
+         /// Indicates that `""` was tried to be parsed.
         case emptyFilename
     }
 
     @inlinable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let string = try container.decode(String.self)
-        guard let contentfulString = ContentfulString(string) else { throw DecodingError.emptyFilename }
+        let fullString = try container.decode(String.self)
+
+        let components = fullString.split(separator: "/", omittingEmptySubsequences: true)
+        guard let lastComponent = components.last,
+              let contentfulString = ContentfulString(String(lastComponent)) else {
+            throw DecodingError.emptyFilename
+        }
+
         self.init(contentfulString)
     }
 }

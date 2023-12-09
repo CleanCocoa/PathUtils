@@ -77,6 +77,9 @@ class BasenameTests: XCTestCase {
         // Valid JSON requires enquoting
         XCTAssertThrowsError(try decoded(#"file"#))
         XCTAssertThrowsError(try decoded(#"text.txt"#))
+        
+        XCTAssertThrowsError(try decoded(#""#))
+        XCTAssertThrowsError(try decoded(#""""#))
 
         try XCTAssertEqual(decoded(#""text.txt""#), Basename(value: "text", pathExtension: "txt"))
         try XCTAssertEqual(decoded(#""file""#), Basename(value: "file", pathExtension: ""))
