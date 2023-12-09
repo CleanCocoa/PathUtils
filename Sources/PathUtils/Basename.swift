@@ -76,7 +76,7 @@ extension Basename {
     }
 
     public init?(string: String) {
-        let pathComponents = string.split(separator: "/", omittingEmptySubsequences: true)
+        let pathComponents = (string as NSString).pathComponents
         guard let lastComponent = pathComponents.last.map(String.init(_:)) else { return nil }
 
         let (filenameString, pathExtension) = Self.splitBasename(lastComponent)

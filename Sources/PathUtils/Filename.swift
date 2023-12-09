@@ -80,8 +80,8 @@ extension Filename: Decodable {
         let container = try decoder.singleValueContainer()
         let fullString = try container.decode(String.self)
 
-        let components = fullString.split(separator: "/", omittingEmptySubsequences: true)
-        guard let lastComponent = components.last,
+        let pathComponents = (fullString as NSString).pathComponents
+        guard let lastComponent = pathComponents.last,
               let contentfulString = ContentfulString(String(lastComponent)) else {
             throw DecodingError.emptyFilename
         }
