@@ -11,6 +11,27 @@ extension URL {
 }
 
 /// A URL that points to a resource on the local file system, i.e. via the `file:` scheme. 
+///
+/// ## Decoding
+///
+/// By default, ``FileURL`` decodes from `Foundation.URL` and interprets the result in ``FileURL/init(from:)`` as usual.
+///
+/// When decoding user data, though, you may want to interpret paths as file URLs as well. To decode ``FileURL`` from file paths like "`/tmp/doc.txt`", configure the `Decoder` to use `CodingUserInfoKey.readFileURLFromPath`:
+///
+/// ```swift
+/// decoder.userInfo[.readFileURLFromPath] = true
+/// ```
+///
+/// This will replace treating the path  "`/tmp/doc.txt`" as a scheme-less `URL(string: "/tmp/doc.txt")` with treating it as `URL(string: "file:///tmp/doc.txt")`.
+///
+/// **Make sure you resolve paths that make sense to your context.** Note that the default behavior of `Foundation.URL`'s relative path resolution applies. A relative path will be resolved against the default URL path in context. E.g. in tests, that's `file:///private/tmp/`. You may want to provide a static base URL for this instead:
+///
+/// ```swift
+/// let baseURL: URL = ...
+/// let decodedFileURL: FileURL = ...
+/// let rebasedURL = URL(filePath: decodedFileURL.url.path, relativeTo: baseURL)
+/// let rebasedFileURL = try FileURL(from: rebasedURL)
+/// ```
 public struct FileURL: Equatable {
     /// Folder representation of the file's URL up to (but excluding) the file.
     public let folder: Folder
@@ -55,10 +76,37 @@ extension FileURL {
     }
 }
 
+extension CodingUserInfoKey {
+    /// Determines if URL decoding should treat a path without any scheme as a `file://` URL during ``FileURL/init(from:)``.
+    /// - Invariant: Associated value is expected to be a `Bool`.
+    public static let readFileURLFromPath: CodingUserInfoKey = {
+        guard let key = CodingUserInfoKey(rawValue: "FileURL_readFileURLFromPath") else {
+            fatalError("CodingUserInfoKey.init failed for nonempty string")
+        }
+        return key
+    }()
+}
+
 extension FileURL: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let url = try container.decode(URL.self)
+        
+        let decodedURL = try container.decode(URL.self)
+        let url: URL = {
+            // "/path/to/file.txt" decodes into a URL without scheme.
+            if decodedURL.scheme == nil,
+               let readFileURLFromPath = decoder.userInfo[.readFileURLFromPath] as? Bool,
+               readFileURLFromPath == true {
+                if #available(macOS 13.0, *) {
+                    return URL(filePath: decodedURL.path)
+                } else {
+                    return URL(fileURLWithPath: decodedURL.path)
+                }
+            } else {
+                return decodedURL
+            }
+        }()
+
         let fileURL = try FileURL(from: url)
         self = fileURL
     }

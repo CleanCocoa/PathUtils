@@ -139,7 +139,7 @@ class FileURLTests: XCTestCase {
                        Folder(url: URL(fileURLWithPath: "/tmp/relative", isDirectory: true)))
     }
 
-    func testCodable() throws {
+    func testCodable_Roundtrip() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         let fileURL = try FileURL(
@@ -152,5 +152,49 @@ class FileURLTests: XCTestCase {
 
         let decoded = try decoder.decode(FileURL.self, from: jsonData)
         XCTAssertEqual(decoded, fileURL)
+    }
+
+    func testDecodable_StrictFileURLDecoding() throws {
+        let decoder = JSONDecoder()
+        decoder.userInfo[.readFileURLFromPath] = nil // or `false`, is the default
+        func decoded(_ jsonString: String) throws -> FileURL {
+            try decoder.decode(FileURL.self, from: jsonString.data(using: .utf8)!)
+        }
+
+        // Valid JSON requires enquoting
+        XCTAssertThrowsError(try decoded(#"file://foo.x"#))
+
+        XCTAssertThrowsError(try decoded(#""#))
+        XCTAssertThrowsError(try decoded(#""""#))
+
+        XCTAssertThrowsError(try decoded(#""file""#))
+        XCTAssertThrowsError(try decoded(#"".top.secret.gpg""#))
+        XCTAssertThrowsError(try decoded(#""text.txt""#))
+        XCTAssertThrowsError(try decoded(#""/doc.txt""#))
+        XCTAssertThrowsError(try decoded(#""relative/doc.txt""#))
+        XCTAssertThrowsError(try decoded(#""/absolute/doc.txt""#))
+        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
+    }
+
+    func testDecodable_InterpretingPathsAsFileURL() throws {
+        let decoder = JSONDecoder()
+        decoder.userInfo[.readFileURLFromPath] = true
+        func decoded(_ jsonString: String) throws -> FileURL {
+            try decoder.decode(FileURL.self, from: jsonString.data(using: .utf8)!)
+        }
+
+        // Valid JSON requires enquoting
+        XCTAssertThrowsError(try decoded(#"file://foo.x"#))
+
+        XCTAssertThrowsError(try decoded(#""#))
+        XCTAssertThrowsError(try decoded(#""""#))
+
+        try XCTAssertEqual(decoded(#""file""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "file"))))
+        try XCTAssertEqual(decoded(#"".top.secret.gpg""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: ".top.secret.gpg"))))
+        try XCTAssertEqual(decoded(#""text.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "text.txt"))))
+        try XCTAssertEqual(decoded(#""/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/doc.txt"))))
+        try XCTAssertEqual(decoded(#""relative/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "relative/doc.txt"))))
+        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/absolute/doc.txt"))))
+        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
     }
 }
