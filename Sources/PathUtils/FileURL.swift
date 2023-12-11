@@ -27,6 +27,12 @@ extension URL {
 /// **Make sure you resolve paths that make sense to your context.** Note that the default behavior of `Foundation.URL`'s relative path resolution applies. A relative path will be resolved against the default URL path in context. E.g. in tests, that's `file:///private/tmp/`. You may want to provide a static base URL for this instead:
 ///
 /// ```swift
+/// decoder.userInfo[.fileURLBaseURL] = URL(filePath: ...)
+/// ```
+///
+/// Or if you prefer manual conversion:
+///
+/// ```swift
 /// let baseURL: URL = ...
 /// let decodedFileURL: FileURL = ...
 /// let rebasedURL = URL(filePath: decodedFileURL.url.path, relativeTo: baseURL)
@@ -78,9 +84,21 @@ extension FileURL {
 
 extension CodingUserInfoKey {
     /// Determines if URL decoding should treat a path without any scheme as a `file://` URL during ``FileURL/init(from:)``.
+    ///
+    /// Set the base URL resolution via `fileURLBaseURL`.
+    /// 
     /// - Invariant: Associated value is expected to be a `Bool`.
     public static let readFileURLFromPath: CodingUserInfoKey = {
         guard let key = CodingUserInfoKey(rawValue: "FileURL_readFileURLFromPath") else {
+            fatalError("CodingUserInfoKey.init failed for nonempty string")
+        }
+        return key
+    }()
+
+    /// The base URL to resolve relative paths against when `readFileURLFromPath` is set.
+    /// - Invariant: Associated value is expected to be a `URL`.
+    public static let fileURLBaseURL: CodingUserInfoKey = {
+        guard let key = CodingUserInfoKey(rawValue: "FileURL_fileURLBaseURL") else {
             fatalError("CodingUserInfoKey.init failed for nonempty string")
         }
         return key
@@ -97,10 +115,11 @@ extension FileURL: Codable {
             if decodedURL.scheme == nil,
                let readFileURLFromPath = decoder.userInfo[.readFileURLFromPath] as? Bool,
                readFileURLFromPath == true {
+                let baseURL = decoder.userInfo[.fileURLBaseURL] as? URL
                 if #available(macOS 13.0, *) {
-                    return URL(filePath: decodedURL.path)
+                    return URL(filePath: decodedURL.path, relativeTo: baseURL)
                 } else {
-                    return URL(fileURLWithPath: decodedURL.path)
+                    return URL(fileURLWithPath: decodedURL.path, relativeTo: baseURL)
                 }
             } else {
                 return decodedURL

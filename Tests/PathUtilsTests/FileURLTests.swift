@@ -176,7 +176,7 @@ class FileURLTests: XCTestCase {
         try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
     }
 
-    func testDecodable_InterpretingPathsAsFileURL() throws {
+    func testDecodable_InterpretingPathsAsFileURL_InferredBaseURL() throws {
         let decoder = JSONDecoder()
         decoder.userInfo[.readFileURLFromPath] = true
         func decoded(_ jsonString: String) throws -> FileURL {
@@ -192,9 +192,38 @@ class FileURLTests: XCTestCase {
         try XCTAssertEqual(decoded(#""file""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "file"))))
         try XCTAssertEqual(decoded(#"".top.secret.gpg""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: ".top.secret.gpg"))))
         try XCTAssertEqual(decoded(#""text.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "text.txt"))))
-        try XCTAssertEqual(decoded(#""/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/doc.txt"))))
         try XCTAssertEqual(decoded(#""relative/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "relative/doc.txt"))))
+        try XCTAssertEqual(decoded(#""/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/doc.txt"))))
         try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/absolute/doc.txt"))))
         try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
     }
+
+    func testDecodable_InterpretingPathsAsFileURL_ExplicitBaseURL() throws {
+        let baseURL = URL(fileURLWithPath: "/tmp/base/url")
+        XCTAssertNotEqual(URL(fileURLWithPath: "", relativeTo: nil).absoluteString,
+                          URL(fileURLWithPath: "", relativeTo: baseURL).absoluteString,
+                          "The default inferred base URL is not the one we set explicitly here (it's /private/tmp/ as of 2023-12-11)")
+
+        let decoder = JSONDecoder()
+        decoder.userInfo[.readFileURLFromPath] = true
+        decoder.userInfo[.fileURLBaseURL] = baseURL
+        func decoded(_ jsonString: String) throws -> FileURL {
+            try decoder.decode(FileURL.self, from: jsonString.data(using: .utf8)!)
+        }
+
+        // Valid JSON requires enquoting
+        XCTAssertThrowsError(try decoded(#"file://foo.x"#))
+
+        XCTAssertThrowsError(try decoded(#""#))
+        XCTAssertThrowsError(try decoded(#""""#))
+
+        try XCTAssertEqual(decoded(#""file""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "file", relativeTo: baseURL))))
+        try XCTAssertEqual(decoded(#"".top.secret.gpg""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: ".top.secret.gpg", relativeTo: baseURL))))
+        try XCTAssertEqual(decoded(#""text.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "text.txt", relativeTo: baseURL))))
+        try XCTAssertEqual(decoded(#""relative/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "relative/doc.txt", relativeTo: baseURL))))
+        try XCTAssertEqual(decoded(#""/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/doc.txt"))))
+        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/absolute/doc.txt"))))
+        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
+    }
+
 }
