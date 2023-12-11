@@ -19,7 +19,7 @@ public struct Folder: Equatable, CustomStringConvertible {
     }
 
     public var description: String {
-        return "Folder(path=\"\(url.path)\")"
+        return "Folder(path=\"\(url.absoluteString)\")"
     }
 
     public func fileURL(filename: Filename, pathExtension: String) -> FileURL {
