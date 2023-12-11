@@ -43,7 +43,7 @@ class FilenameTests: XCTestCase {
     func testDecodable() throws {
         let decoder = JSONDecoder()
 
-        func decoded(_ jsonString: String) throws -> Filename? {
+        func decoded(_ jsonString: String) throws -> Filename {
             try decoder.decode(Filename.self, from: jsonString.data(using: .utf8)!)
         }
 

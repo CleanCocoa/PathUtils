@@ -4,8 +4,10 @@ import struct Foundation.URL
 
 extension URL {
     /// ``FileURL``, if the receiver is pointing to a resource on the local file system.
+    ///
+    /// > Note: Use ``FileURL/init(from:)`` to handle thrown failures.
     @inlinable
-    public var fileURL: FileURL? { FileURL(from: self) }
+    public var fileURL: FileURL? { try? FileURL(from: self) }
 }
 
 /// A URL that points to a resource on the local file system, i.e. via the `file:` scheme. 
@@ -26,15 +28,29 @@ public struct FileURL: Equatable {
         self.folder = folder
         self.basename = basename
     }
+}
+
+extension FileURL {
+    public enum InitFromURLError: Error {
+        public enum Unexpected {
+            case basenameExtraction
+            case folderExtraction
+        }
+
+        case notFileURL(URL)
+        case isDirectory(URL)
+
+        /// Indicates unexpected failure at known points.
+        case unexpected(Unexpected, URL)
+    }
 
     /// - Invariant: Cannot be constructed for non-file-URLs. Adheres to the rules of  `URL.isFileURL` combined with `URL.hasDirectoryPath`.
-    public init?(from url: URL) {
-        guard url.isFileURL,
-              !url.hasDirectoryPath,
-              // A file URL that is not a directory path always has a lastPathComponent (the file); the root `/` would have exited at this point.
-              let basename = Basename(url: url),
-              let folder = Folder(url: url.deletingLastPathComponent())
-        else { return nil }
+    public init(from url: URL) throws {
+        guard url.isFileURL else { throw InitFromURLError.notFileURL(url) }
+        guard !url.hasDirectoryPath else { throw InitFromURLError.isDirectory(url) }
+        // A file URL that is not a directory path always has a lastPathComponent (the file); the root `/` would have exited at this point.
+        guard let basename = Basename(url: url) else { throw InitFromURLError.unexpected(.basenameExtraction, url) }
+        guard let folder = Folder(url: url.deletingLastPathComponent()) else { throw InitFromURLError.unexpected(.folderExtraction, url) }
         self.init(folder: folder, basename: basename)
     }
 }
@@ -43,11 +59,7 @@ extension FileURL: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(URL.self)
-        guard let fileURL = FileURL(from: url) else {
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "Expected a valid file URL string, got '\(url)'")
-        }
+        let fileURL = try FileURL(from: url)
         self = fileURL
     }
 

@@ -17,41 +17,76 @@ class FileURLTests: XCTestCase {
 
     func test_FromHTTP_URL_FailsInitialization() {
         let httpURL = URL(string: "http://web.addres.se")!
-        XCTAssertNil(FileURL(from: httpURL))
+        XCTAssertThrowsError(try FileURL(from: httpURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.notFileURL(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromHTTPS_URL_FailsInitialization() {
         let httpsURL = URL(string: "https://web.addres.se")!
-        XCTAssertNil(FileURL(from: httpsURL))
+        XCTAssertThrowsError(try FileURL(from: httpsURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.notFileURL(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromFTP_URL_FailsInitialization() {
         let ftpURL = URL(string: "ftp://web.addres.se")!
-        XCTAssertNil(FileURL(from: ftpURL))
+        XCTAssertThrowsError(try FileURL(from: ftpURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.notFileURL(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromSSH_URL_FailsInitialization() {
         let sshURL = URL(string: "ssh://foo:bar@web.addres.se")!
-        XCTAssertNil(FileURL(from: sshURL))
+        XCTAssertThrowsError(try FileURL(from: sshURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.notFileURL(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromCustomURL_FailsInitialization() {
         let customURL = URL(string: "myapp://host/path")!
-        XCTAssertNil(FileURL(from: customURL))
+        XCTAssertThrowsError(try FileURL(from: customURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.notFileURL(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromDirectoryURL_FailsInitialization() {
         let directoryURL = URL(fileURLWithPath: "/xyz", isDirectory: true)
-        XCTAssertNil(FileURL(from: directoryURL))
+        XCTAssertThrowsError(try FileURL(from: directoryURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.isDirectory(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromRootPathURL_FailsInitialization() {
         let rootURL = URL(fileURLWithPath: "/")
-        XCTAssertNil(FileURL(from: rootURL))
+        XCTAssertThrowsError(try FileURL(from: rootURL)) { error in
+            switch error {
+            case FileURL.InitFromURLError.isDirectory(_): break
+            default: XCTFail("Unexpected error: \(error)")
+            }
+        }
     }
 
     func test_FromAbsoluteFileURL() throws {
-        let fileURLFromFile = try XCTUnwrap(FileURL(from: URL(string: "file:///tmp/foo.bar")!))
+        let fileURLFromFile = try FileURL(from: XCTUnwrap(URL(string: "file:///tmp/foo.bar")))
 
         XCTAssertEqual(fileURLFromFile.filename,
                        Filename("foo"))
@@ -63,7 +98,7 @@ class FileURLTests: XCTestCase {
     }
 
     func test_FromAbsoluteFileURLAtRootLevel() throws {
-        let fileURL = try XCTUnwrap(FileURL(from: URL(fileURLWithPath: "/root.xyz")))
+        let fileURL = try FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/root.xyz")))
 
         XCTAssertEqual(fileURL.filename,
                        Filename("root"))
@@ -78,7 +113,7 @@ class FileURLTests: XCTestCase {
         let relativeFileURL = URL(
             fileURLWithPath: "subdir/file.txt",
             relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
-        let fileURLFromRelativeFile = try XCTUnwrap(FileURL(from: relativeFileURL))
+        let fileURLFromRelativeFile = try FileURL(from: relativeFileURL)
 
         XCTAssertEqual(fileURLFromRelativeFile.basename,
                        Basename(filename: Filename("file"),
@@ -87,14 +122,13 @@ class FileURLTests: XCTestCase {
                        Filename("file"))
         XCTAssertEqual(fileURLFromRelativeFile.folder,
                        Folder(url: URL(fileURLWithPath: "/tmp/relative/subdir", isDirectory: true)))
-
     }
 
     func test_FromRelativeFileURL_WithoutSubdirectory() throws {
         let relativeFileURLWithoutSubdir = URL(
             fileURLWithPath: "main.file",
             relativeTo: URL(fileURLWithPath: "/tmp/relative/"))
-        let fileURLFromRelativeFileWithoutSubdir = try XCTUnwrap(FileURL(from: relativeFileURLWithoutSubdir))
+        let fileURLFromRelativeFileWithoutSubdir = try FileURL(from: relativeFileURLWithoutSubdir)
 
         XCTAssertEqual(fileURLFromRelativeFileWithoutSubdir.basename,
                        Basename(filename: Filename("main"),
