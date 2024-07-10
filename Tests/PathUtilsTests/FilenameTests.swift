@@ -54,15 +54,19 @@ class FilenameTests: XCTestCase {
         XCTAssertThrowsError(try decoded(#""#))
         XCTAssertThrowsError(try decoded(#""""#))
 
-        try XCTAssertEqual(decoded(#"" ""#), Filename(" "))
-        try XCTAssertEqual(decoded(#"".""#), Filename("."))
-
-        try XCTAssertEqual(decoded(#""file""#), Filename("file"))
-        try XCTAssertEqual(decoded(#"".top.secret.gpg""#), Filename( ".top.secret.gpg"))
-        try XCTAssertEqual(decoded(#""text.txt""#), Filename("text.txt"))
-        try XCTAssertEqual(decoded(#""/doc.txt""#), Filename("doc.txt"))
-        try XCTAssertEqual(decoded(#""relative/doc.txt""#), Filename("doc.txt"))
-        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), Filename("doc.txt"))
-        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), Filename("doc.txt"))
+        let pairs: [(input: String, expectedFilename: ContentfulString)] = [
+            (#"" ""#,                          " "),
+            (#"".""#,                          "."),
+            (#""file""#,                       "file"),
+            (#"".top.secret.gpg""#,            ".top.secret.gpg"),
+            (#""text.txt""#,                   "text.txt"),
+            (#""/doc.txt""#,                   "doc.txt"),
+            (#""relative/doc.txt""#,           "doc.txt"),
+            (#""/absolute/doc.txt""#,          "doc.txt"),
+            (#""file:///full/path/doc.txt""#,  "doc.txt"),
+        ]
+        for (input, expectedFilename) in pairs {
+            try XCTAssertEqual(decoded(input), Filename(expectedFilename))
+        }
     }
 }

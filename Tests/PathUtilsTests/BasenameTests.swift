@@ -21,20 +21,22 @@ class BasenameTests: XCTestCase {
     func testInitFromString() {
         XCTAssertNil(Basename(string: ""))
 
-        XCTAssertEqual(Basename(string: "."), Basename(value: ".", pathExtension: ""))
-        XCTAssertEqual(Basename(string: ".."), Basename(value: "..", pathExtension: ""))
-        XCTAssertEqual(Basename(string: "....."), Basename(value: ".....", pathExtension: ""))
+        let pairs: [(input: String, expectedValue: ContentfulString, expectedPathExtension: String)] = [
+            (".",                 ".", ""),
+            ("..",                "..", ""),
+            (".....",             ".....", ""),
+            (" ",                 " ", ""),
+            ("test",              "test", ""),
+            (".hidden",           ".hidden", ""),
+            (".hidden.file",      ".hidden", "file"),
+            ("abnormal....file",  "abnormal...", "file"),
+            ("normal.file",       "normal", "file"),
+            ("a.b.c",             "a.b", "c"),
+        ]
+        for (input, expectedValue, expectedPathExtension) in pairs {
+            XCTAssertEqual(Basename(string: input), Basename(value: expectedValue, pathExtension: expectedPathExtension))
+        }
 
-        XCTAssertEqual(Basename(string: " "), Basename(value: " ", pathExtension: ""))
-        XCTAssertEqual(Basename(string: "test"), Basename(value: "test", pathExtension: ""))
-        
-        XCTAssertEqual(Basename(string: ".hidden"), Basename(value: ".hidden", pathExtension: ""))
-        XCTAssertEqual(Basename(string: ".hidden.file"), Basename(value: ".hidden", pathExtension: "file"))
-
-        XCTAssertEqual(Basename(string: "abnormal....file"), Basename(value: "abnormal...", pathExtension: "file"))
-
-        XCTAssertEqual(Basename(string: "normal.file"), Basename(value: "normal", pathExtension: "file"))
-        XCTAssertEqual(Basename(string: "a.b.c"), Basename(value: "a.b", pathExtension: "c"))
     }
 
     func testString() {
@@ -77,16 +79,21 @@ class BasenameTests: XCTestCase {
         // Valid JSON requires enquoting
         XCTAssertThrowsError(try decoded(#"file"#))
         XCTAssertThrowsError(try decoded(#"text.txt"#))
-        
+
         XCTAssertThrowsError(try decoded(#""#))
         XCTAssertThrowsError(try decoded(#""""#))
 
-        try XCTAssertEqual(decoded(#""text.txt""#), Basename(value: "text", pathExtension: "txt"))
-        try XCTAssertEqual(decoded(#""file""#), Basename(value: "file", pathExtension: ""))
-        try XCTAssertEqual(decoded(#"".top.secret.gpg""#), Basename(value: ".top.secret", pathExtension: "gpg"))
-        try XCTAssertEqual(decoded(#""/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
-        try XCTAssertEqual(decoded(#""relative/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
-        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
-        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), Basename(value: "doc", pathExtension: "txt"))
+        let pairs: [(input: String, expectedValue: ContentfulString, expectedPathExtension: String)] = [
+            (#""text.txt""#,                   "text", "txt"),
+            (#""file""#,                       "file", ""),
+            (#"".top.secret.gpg""#,            ".top.secret", "gpg"),
+            (#""/doc.txt""#,                   "doc", "txt"),
+            (#""relative/doc.txt""#,           "doc", "txt"),
+            (#""/absolute/doc.txt""#,          "doc", "txt"),
+            (#""file:///full/path/doc.txt""#,  "doc", "txt"),
+        ]
+        for (input, expectedValue, expectedPathExtension) in pairs {
+            try XCTAssertEqual(decoded(input), Basename(value: expectedValue, pathExtension: expectedPathExtension))
+        }
     }
 }

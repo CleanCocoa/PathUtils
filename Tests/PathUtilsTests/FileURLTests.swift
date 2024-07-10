@@ -189,13 +189,19 @@ class FileURLTests: XCTestCase {
         XCTAssertThrowsError(try decoded(#""#))
         XCTAssertThrowsError(try decoded(#""""#))
 
-        try XCTAssertEqual(decoded(#""file""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "file"))))
-        try XCTAssertEqual(decoded(#"".top.secret.gpg""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: ".top.secret.gpg"))))
-        try XCTAssertEqual(decoded(#""text.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "text.txt"))))
-        try XCTAssertEqual(decoded(#""relative/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "relative/doc.txt"))))
-        try XCTAssertEqual(decoded(#""/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/doc.txt"))))
-        try XCTAssertEqual(decoded(#""/absolute/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/absolute/doc.txt"))))
-        try XCTAssertEqual(decoded(#""file:///full/path/doc.txt""#), FileURL(from: XCTUnwrap(URL(fileURLWithPath: "/full/path/doc.txt"))))
+        let pairs: [(input: String, expectedURLPath: String)] = [
+            (#""file""#,                       "file"),
+            (#"".top.secret.gpg""#,            ".top.secret.gpg"),
+            (#""text.txt""#,                   "text.txt"),
+            (#""relative/doc.txt""#,           "relative/doc.txt"),
+            (#""/doc.txt""#,                   "/doc.txt"),
+            (#""/absolute/doc.txt""#,          "/absolute/doc.txt"),
+            (#""file:///full/path/doc.txt""#,  "/full/path/doc.txt"),
+        ]
+        for (input, expectedURLPath) in pairs {
+            let expectedURL = try XCTUnwrap(URL(fileURLWithPath: expectedURLPath))
+            try XCTAssertEqual(decoded(input), FileURL(from: expectedURL))
+        }
     }
 
     func testDecodable_InterpretingPathsAsFileURL_ExplicitBaseURL() throws {
