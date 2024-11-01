@@ -38,7 +38,7 @@ extension URL {
 /// let rebasedURL = URL(filePath: decodedFileURL.url.path, relativeTo: baseURL)
 /// let rebasedFileURL = try FileURL(from: rebasedURL)
 /// ```
-public struct FileURL: Equatable {
+public struct FileURL: Equatable, Sendable {
     /// Folder representation of the file's URL up to (but excluding) the file.
     public let folder: Folder
 

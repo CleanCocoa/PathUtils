@@ -11,7 +11,7 @@ extension URL {
 /// Representation of a filename with its path extension. So "/path/to/foo.txt" becomes "foo.txt".
 ///
 /// See ``Filename`` for filename without path extension.
-public struct Basename: Equatable, Hashable {
+public struct Basename: Equatable, Hashable, Sendable {
     public let filename: Filename
     /// When the file has no path extension, an empty string.
     public let pathExtension: String

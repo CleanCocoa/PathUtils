@@ -16,7 +16,7 @@ public func contentful(_ strings: [String]?) -> [ContentfulString] {
     return strings.compactMap(contentful)
 }
 
-public struct ContentfulString: Equatable, Hashable, CustomStringConvertible {
+public struct ContentfulString: Equatable, Hashable, Sendable, CustomStringConvertible {
     public let value: String
 
     public init?(_ value: String) {

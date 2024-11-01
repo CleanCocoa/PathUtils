@@ -19,7 +19,7 @@ extension URL {
 /// Representation of a filename sans path or extension. So "/path/to/foo.txt" becomes just "foo".
 ///
 /// See ``Basename`` for filename with a path extension.
-public struct Filename: Equatable, Hashable, CustomStringConvertible {
+public struct Filename: Equatable, Hashable, Sendable, CustomStringConvertible {
     public let value: ContentfulString
     public var string: String { return value.value }
 

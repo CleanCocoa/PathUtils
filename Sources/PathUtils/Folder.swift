@@ -8,7 +8,7 @@ extension URL {
 }
 
 /// - Note: Equatability does compare `absoluteString` of `url`, not URLs themselves, for better compatibility between different ways to point to the same file.
-public struct Folder: Equatable, CustomStringConvertible {
+public struct Folder: Equatable, Sendable, CustomStringConvertible {
     public let url: URL
     public var path: String { url.path }
 
