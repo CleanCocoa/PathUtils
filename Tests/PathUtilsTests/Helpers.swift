@@ -7,9 +7,7 @@ func url(_ path: String) -> URL {
     return URL(fileURLWithPath: path)
 }
 
-extension ContentfulString: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {}
-extension ContentfulString: @retroactive ExpressibleByUnicodeScalarLiteral {}
-extension ContentfulString: @retroactive ExpressibleByStringLiteral {
+extension ContentfulString: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(value)!
     }
