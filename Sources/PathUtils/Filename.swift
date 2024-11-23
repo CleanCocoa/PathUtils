@@ -21,17 +21,24 @@ extension URL {
 /// See ``Basename`` for filename with a path extension.
 public struct Filename: Equatable, Hashable, Sendable, CustomStringConvertible {
     public let value: ContentfulString
-    public var string: String { return value.value }
+    @inlinable @inline(__always)
+    public var string: String { value.value }
 
+    @inlinable
+    public var description: String { "Filename(\(value))" }
+
+    @inlinable
     public init(_ value: ContentfulString) {
         self.value = value
     }
 
+    @inlinable @inline(__always)
     public init?(string: String) {
         guard let contentful = ContentfulString(string) else { return nil }
         self.value = contentful
     }
 
+    @inlinable @inline(__always)
     public init?(url: URL) {
         let filename = url.filenamePathComponent
 
@@ -40,30 +47,31 @@ public struct Filename: Equatable, Hashable, Sendable, CustomStringConvertible {
         self.init(string: filename)
     }
 
+    @inlinable
     public func url(relativeTo url: URL, pathExtension: String = "") -> URL {
         return url.appendingPathComponent(self.string)
             .appendingPathExtension(pathExtension)
     }
 
+    @inlinable
     public func url(relativeTo folder: Folder, pathExtension: String = "") -> URL {
         return url(relativeTo: folder.url,
                    pathExtension: pathExtension)
     }
 
+    @inlinable
     public func fileURL(relativeTo folder: Folder, pathExtension: String = "") -> FileURL {
         return folder.fileURL(filename: self, pathExtension: pathExtension)
     }
-
-    public var description: String {
-        return "Filename(\(value))"
-    }
 }
 
+@inlinable
 public func + (lhs: Filename, rhs: String) -> Filename {
     return Filename(lhs.value + rhs)
 }
 
 extension Filename: Comparable {
+    @inlinable
     public static func < (lhs: Filename, rhs: Filename) -> Bool {
         return lhs.value < rhs.value
     }
