@@ -38,8 +38,9 @@ public struct ContentfulString: Equatable, Hashable, Sendable, CustomStringConve
         return value.contains(string)
     }
 
-    public func lowercased() -> String {
-        return value.lowercased()
+    @inlinable
+    public func lowercased() -> ContentfulString {
+        return ContentfulString(value.lowercased())!  // Force-try guaranteed to succeed because `self.value` cannot be empty.
     }
 }
 
