@@ -58,8 +58,8 @@ public struct FileURL: Equatable, Sendable {
 }
 
 extension FileURL {
-    public enum InitFromURLError: Error {
-        public enum Unexpected {
+    public enum InitFromURLError: Error, Sendable {
+        public enum Unexpected: Sendable {
             case basenameExtraction
             case folderExtraction
         }
